@@ -1,0 +1,62 @@
+AWSConfig:
+  region: us-east-1
+
+OpenSearch:
+  service : aoss
+  host : {hostname}
+  port : 443
+  use_ssl : True
+  verify_certs : True
+  pool_maxsize : 20
+
+  Collection : 
+    name : digital-drugs
+    index : drugs-index
+  
+  DataAccessPolicy : 
+    name: ${OpenSearch.Collection.name}-policy
+    description: Data access policy for ${OpenSearch.Collection.name} collections
+    policy:
+      - Rules:
+          - Resource:
+              - index/${OpenSearch.Collection.name}/*
+            Permission:
+              - aoss:CreateIndex
+              - aoss:DeleteIndex
+              - aoss:UpdateIndex
+              - aoss:DescribeIndex
+              - aoss:ReadDocument
+              - aoss:WriteDocument
+            ResourceType: index
+          - Resource:
+              - collection/${OpenSearch.Collection.name}
+            Permission:
+              - aoss:CreateCollectionItems
+            ResourceType: collection
+        Principal:
+          - arn:aws:iam::{aws_account_id}:user/{aws_user_name}
+
+  EncryptionPolicy :
+    name: ${OpenSearch.Collection.name}-policy
+    description: Encryption policy for ${OpenSearch.Collection.name} collections
+    policy:
+      Rules:
+        - ResourceType: collection
+          Resource:
+            - collection/${OpenSearch.Collection.name}
+      AWSOwnedKey: true
+
+  NetworkPolicy : 
+    name: ${OpenSearch.Collection.name}-policy
+    description: NetworkPolicy for ${OpenSearch.Collection.name} collections
+    policy :
+      - Description: ""
+        Rules:
+          - ResourceType: dashboard
+            Resource:
+              - collection/${OpenSearch.Collection.name}
+          - ResourceType: collection
+            Resource:
+              - collection/${OpenSearch.Collection.name}
+        AllowFromPublic: true
+
