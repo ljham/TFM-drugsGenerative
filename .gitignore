@@ -1,2 +1,6 @@
 Pipfile
 .env
+Pipfile.lock
+drugs.log
+query.json
+/dataset

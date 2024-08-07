@@ -1,25 +1,122 @@
-AWSConfig:
-  region: us-east-1
+Project:
+  name : .
+  url_dataset : https://api.fda.gov/download.json
+  chunk_size : 2500
+  file_name_data_parquet : drugs_data.parquet
+  file_name_column_parquet : drugs_column.parquet
+
+OpenFDA:
+  - abuse
+  - abuse_table
+  - active_ingredient
+  - active_ingredient_table
+  - adverse_reactions
+  - adverse_reactions_table
+  - alarms
+  - ask_doctor_or_pharmacist
+  - ask_doctor_or_pharmacist_table
+  - ask_doctor_table
+  - brand_name
+  - carcinogenesis_and_mutagenesis_and_impairment_of_fertility
+  - clinical_pharmacology_table
+  - clinical_studies_table
+  - components_table
+  - contraindications
+  - controlled_substance
+  - dependence
+  - dependence_table
+  - description
+  - description_table
+  - do_not_use_table
+  - dosage_and_administration
+  - dosage_and_administration_table
+  - drug_abuse_and_dependence
+  - drug_abuse_and_dependence_table
+  - drug_and_or_laboratory_test_interactions_table
+  - drug_interactions_table
+  - effective_time
+  - general_precautions
+  - general_precautions_table
+  - generic_name
+  - geriatric_use
+  - how_supplied_table
+  - id
+  - inactive_ingredient
+  - indications_and_usage
+  - indications_and_usage_table
+  - information_for_patients_table
+  - instructions_for_use
+  - labor_and_delivery
+  - labor_and_delivery_table
+  - laboratory_tests
+  - laboratory_tests_table
+  - last_updated
+  - mechanism_of_action_table
+  - microbiology_table
+  - nonteratogenic_effects
+  - nursing_mothers
+  - nursing_mothers_table
+  - overdosage
+  - overdosage_table
+  - package_label_principal_display_panel
+  - patient_medication_information
+  - pediatric_use_table
+  - pharmacodynamics_table
+  - pharmacogenomics_table
+  - pharmacokinetics_table
+  - precautions
+  - precautions_table
+  - pregnancy
+  - pregnancy_or_breast_feeding
+  - pregnancy_or_breast_feeding_table
+  - pregnancy_table
+  - product_type
+  - purpose_table
+  - questions_table
+  - recent_major_changes
+  - recent_major_changes_table
+  - risks
+  - risks_table
+  - spl_medguide
+  - spl_patient_package_insert
+  - statement_of_identity
+  - stop_use_table
+  - storage_and_handling
+  - storage_and_handling_table
+  - substance_name
+  - summary_of_safety_and_effectiveness
+  - teratogenic_effects
+  - use_in_specific_populations
+  - use_in_specific_populations_table
+  - user_safety_warnings
+  - warnings
+  - warnings_and_cautions_table
+  - when_using
+  - when_using_table
 
 OpenSearch:
   service : aoss
-  host : {hostname}
+  host : "{{env('hostname')}}"
   port : 443
   use_ssl : True
   verify_certs : True
   pool_maxsize : 20
+  timeout : 300
 
   Collection : 
     name : digital-drugs
+    description : Colección para almacenar información de un vademecum digital
+    type : SEARCH
     index : drugs-index
-  
+    
+
   DataAccessPolicy : 
-    name: ${OpenSearch.Collection.name}-policy
-    description: Data access policy for ${OpenSearch.Collection.name} collections
+    name: "{{OpenSearch.Collection.name}}-policy"
+    description: Data access policy for {{OpenSearch.Collection.name}} collections
     policy:
       - Rules:
           - Resource:
-              - index/${OpenSearch.Collection.name}/*
+              - index/{{OpenSearch.Collection.name}}/*
             Permission:
               - aoss:CreateIndex
               - aoss:DeleteIndex
@@ -29,34 +126,36 @@ OpenSearch:
               - aoss:WriteDocument
             ResourceType: index
           - Resource:
-              - collection/${OpenSearch.Collection.name}
+              - collection/{{OpenSearch.Collection.name}}
             Permission:
               - aoss:CreateCollectionItems
             ResourceType: collection
         Principal:
-          - arn:aws:iam::{aws_account_id}:user/{aws_user_name}
+          - arn:aws:iam::{{env('aws_account_id')}}:user/{{env('aws_user_name')}}
+    type : data
 
   EncryptionPolicy :
-    name: ${OpenSearch.Collection.name}-policy
-    description: Encryption policy for ${OpenSearch.Collection.name} collections
+    name: "{{OpenSearch.Collection.name}}-policy"
+    description: Encryption policy for {{OpenSearch.Collection.name}} collections
     policy:
       Rules:
         - ResourceType: collection
           Resource:
-            - collection/${OpenSearch.Collection.name}
+            - collection/{{OpenSearch.Collection.name}}
       AWSOwnedKey: true
+    type: encryption
 
   NetworkPolicy : 
-    name: ${OpenSearch.Collection.name}-policy
-    description: NetworkPolicy for ${OpenSearch.Collection.name} collections
+    name: "{{OpenSearch.Collection.name}}-policy"
+    description: NetworkPolicy for {{OpenSearch.Collection.name}} collections
     policy :
       - Description: ""
         Rules:
           - ResourceType: dashboard
             Resource:
-              - collection/${OpenSearch.Collection.name}
+              - collection/{{OpenSearch.Collection.name}}
           - ResourceType: collection
             Resource:
-              - collection/${OpenSearch.Collection.name}
+              - collection/{{OpenSearch.Collection.name}}
         AllowFromPublic: true
-
+    type: network
