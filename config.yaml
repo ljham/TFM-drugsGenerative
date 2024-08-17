@@ -3,7 +3,6 @@ Project:
   url_dataset : https://api.fda.gov/download.json
   chunk_size : 2500
   file_name_data_parquet : drugs_data.parquet
-  file_name_column_parquet : drugs_column.parquet
 
 OpenFDA:
   - abuse
